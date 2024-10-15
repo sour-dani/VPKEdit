@@ -176,7 +176,7 @@ jobs:
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         shell: pwsh
         run: |
-          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}.zip
+          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
