@@ -94,7 +94,10 @@ jobs:
       #     path: |
       #       ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
       #     retention-days: 7
-
+      - name: whereami
+        run: |
+          ls
+          pwd
       - name: Archive Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         uses: vimtor/action-zip@v1.2
