@@ -75,6 +75,12 @@ jobs:
         run: |
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
+      
+      - name: Archive Standalone CLI [target:VPKEdit]
+      if: ${{matrix.target == 'VPKEdit'}}
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone CLI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -82,10 +88,14 @@ jobs:
         with:
           name: '${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/CREDITS.md
-            ${{env.BUILD_DIR}}/LICENSE
-            ${{env.BUILD_DIR}}/vpkeditcli.exe
+            ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
+
+      - name: Archive Standalone GUI [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -93,15 +103,14 @@ jobs:
         with:
           name: '${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/CREDITS.md
-            ${{env.BUILD_DIR}}/LICENSE
-            ${{env.BUILD_DIR}}/vpkedit.exe
-            ${{env.BUILD_DIR}}/*.dll
-            ${{env.BUILD_DIR}}/imageformats/*.dll
-            ${{env.BUILD_DIR}}/platforms/*.dll
-            ${{env.BUILD_DIR}}/styles/*.dll
-            ${{env.BUILD_DIR}}/tls/*.dll
+            ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
+
+      - name: Archive Standalone CLI/GUI [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone CLI/GUI [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
@@ -109,8 +118,7 @@ jobs:
         with:
           name: '${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/vpkeditcli.exe
-            ${{env.BUILD_DIR}}/vpkedit.exe
+            ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
       - name: Create Installer [target:VPKEdit]
@@ -118,13 +126,19 @@ jobs:
         working-directory: ${{env.BUILD_DIR}}
         run: cpack
 
+      - name: Archive Installer [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
+
       - name: Upload Installer [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
           name: '${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
+            ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
       - name: Create Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
@@ -158,6 +172,12 @@ jobs:
           copy /Y __qt__\Qt6OpenGLWidgets.dll          "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6OpenGLWidgets.dll"
           copy /Y __qt__\Qt6Widgets.dll                "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Widgets.dll"
 
+      - name: Archive Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
+
       - name: Upload Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
@@ -179,13 +199,19 @@ jobs:
         working-directory: ${{env.BUILD_DIR}}
         run: cpack
 
+      - name: Archive Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
+
       - name: Upload Compatibility Installer [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
           name: '${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
+            ${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
       - name: Upload Standalone PDBs [target:VPKEdit]
@@ -264,6 +290,7 @@ jobs:
       - name: Fixup Binaries
         run: |
           chmod +x '${{env.BUILD_DIR}}/vpkedit'
+          chmod +x '${{env.BUILD_DIR}}/vpkeditcli'
 
           # runpath cleanup for the Qt binaries. These are (mostly) wrong, leading to crashes
           for f in ${{env.BUILD_DIR}}/*.so*; do
@@ -274,6 +301,11 @@ jobs:
             echo "Fixing $f..."
             chrpath -r '$ORIGIN/..' "$f"
           done
+      
+      - name: Archive Standalone CLI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        run: |
+          zip -j9 ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
 
       - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
@@ -281,47 +313,47 @@ jobs:
         with:
           name: '${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/CREDITS.md
-            ${{env.BUILD_DIR}}/LICENSE
-            ${{env.BUILD_DIR}}/vpkeditcli
+            ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
+      - name: Archive Standalone GUI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        run: |
+          zip -j9 ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
+          
       - name: Upload Standalone GUI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
           name: '${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/CREDITS.md
-            ${{env.BUILD_DIR}}/LICENSE
-            ${{env.BUILD_DIR}}/vpkedit
-            ${{env.BUILD_DIR}}/*.so*
-            ${{env.BUILD_DIR}}/egldeviceintegrations/*.so*
-            ${{env.BUILD_DIR}}/imageformats/*.so*
-            ${{env.BUILD_DIR}}/platforminputcontexts/*.so*
-            ${{env.BUILD_DIR}}/platforms/*.so*
-            ${{env.BUILD_DIR}}/platformthemes/*.so*
-            ${{env.BUILD_DIR}}/tls/*.so*
-            ${{env.BUILD_DIR}}/wayland-decoration-client/*.so*
-            ${{env.BUILD_DIR}}/wayland-graphics-integration-client/*.so*
-            ${{env.BUILD_DIR}}/wayland-shell-integration/*.so*
-            ${{env.BUILD_DIR}}/xcbglintegrations/*.so*
+            ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
+      - name: Archive Standalone CLI/GUI [compiler:gcc][target:StrataSource]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
+        run: |
+          zip -j9 ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
+        
       - name: Upload Standalone CLI/GUI [compiler:gcc][target:StrataSource]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
         uses: actions/upload-artifact@v4
         with:
           name: '${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/vpkeditcli
-            ${{env.BUILD_DIR}}/vpkedit
+            ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
       - name: Create Installer [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
-        run: cpack
+        run: |
+          cpack
+
+      - name: Archive Installer [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        run: |
+          zip -j9 ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
 
       - name: Upload Installer [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
@@ -329,7 +361,7 @@ jobs:
         with:
           name: '${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
+            ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
   deploy:
@@ -339,33 +371,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const artifacts = (await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{github.run_id}},
-            })).data.artifacts;
-            const filteredArtifacts = artifacts.filter(artifact => artifact.name.includes("Release"));
-            console.log(`Found ${artifacts.length} artifacts - ${filteredArtifacts.length} qualify for upload.`);
-            for (const artifact of filteredArtifacts) {
-              console.log(`Downloading "${artifact.name}.zip"...`);
-              let download = await github.rest.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: artifact.id,
-                archive_format: 'zip',
-              });
-              let fs = require('fs');
-              fs.writeFileSync(`${{github.workspace}}/${artifact.name}.zip`, Buffer.from(download.data));
-            }
-            console.log("Artifact download complete!");
+        uses: actions/download-artifact@v4
 
       - name: Upload Release
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@v2
         with:
-          name: Release-Artifacts
-          path: |
-            ${{github.workspace}}/*.zip
-          retention-days: 7
+          files: ${{github.workspace}}/*Release.zip
+          tag_name: draft
+          draft: true
+          make_latest: true
