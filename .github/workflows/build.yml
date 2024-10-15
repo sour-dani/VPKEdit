@@ -359,17 +359,23 @@ jobs:
 
   deploy:
     needs:
-      # - build-windows
+      - build-windows
       - build-linux
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download Artifacts
         uses: actions/download-artifact@v4
-
+        with:
+          path: artifacts
+          merge-multiple: true
+          pattern: '*Release'
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{github.workspace}}/*Release.zip
+          files: | 
+            artifacts/*.zip
           tag_name: draft
           draft: true
           make_latest: true
