@@ -359,7 +359,7 @@ jobs:
 
   deploy:
     needs:
-      - build-windows
+      # - build-windows
       - build-linux
     runs-on: ubuntu-latest
     steps:
