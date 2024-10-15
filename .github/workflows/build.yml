@@ -77,7 +77,7 @@ jobs:
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
       
       - name: Archive Standalone CLI [target:VPKEdit]
-      if: ${{matrix.target == 'VPKEdit'}}
+        if: ${{matrix.target == 'VPKEdit'}}
         shell: pwsh
         run: |
           Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
