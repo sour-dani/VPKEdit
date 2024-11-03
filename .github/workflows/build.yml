@@ -460,7 +460,9 @@ jobs:
       - name: Archive Standalone CLI/GUI [compiler:gcc][target:StrataSource]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
+          zip -j9 ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip \ 
+          ${{env.BUILD_DIR}}/vpkeditcli \
+          ${{env.BUILD_DIR}}/vpkedit
         
       - name: Upload Standalone CLI/GUI [compiler:gcc][target:StrataSource]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
