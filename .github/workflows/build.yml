@@ -389,16 +389,14 @@ jobs:
             chrpath -r '$ORIGIN/..' "$f"
           done
       
-      # Standalone CLI
       - name: Archive Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
-        shell: bash
-          # zip -j9 ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
-          # ${{env.BUILD_DIR}}/CREDITS.md \
-          # ${{env.BUILD_DIR}}/LICENSE \
-          # ${{env.BUILD_DIR}}/vpkeditcli
         run: |
-          echo "hello"
+          zip -j9 ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
+          ${{env.BUILD_DIR}}/CREDITS.md \
+          ${{env.BUILD_DIR}}/LICENSE \
+          ${{env.BUILD_DIR}}/vpkeditcli
+          
       - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
