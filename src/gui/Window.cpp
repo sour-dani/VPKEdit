@@ -45,8 +45,8 @@
 #include "dialogs/VICEDialog.h"
 #include "extensions/Folder.h"
 #include "utility/DiscordPresence.h"
+#include "utility/ImageLoader.h"
 #include "utility/Options.h"
-#include "utility/TGADecoder.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -56,9 +56,8 @@ using namespace vpkpp;
 
 Window::Window(QWidget* parent)
 		: QMainWindow(parent)
-		, modified(false)
 		, dropEnabled(true) {
-	this->setWindowTitle(PROJECT_TITLE.data());
+	this->setWindowTitle(QString{PROJECT_TITLE.data()} + "[*]");
 	this->setWindowIcon(QIcon(":/logo.png"));
 
 	const auto showRestartWarning = [this] {
@@ -171,12 +170,12 @@ Window::Window(QWidget* parent)
 	this->extractAllAction->setDisabled(true);
 
 	editMenu->addSeparator();
-	this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add Files..."), Qt::CTRL | Qt::Key_A, [this] {
+	this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add Files..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [this] {
 		this->addFiles(true);
 	});
 	this->addFileAction->setDisabled(true);
 
-	this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [this] {
+	this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add Folder..."), Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_A, [this] {
 		this->addDir(true);
 	});
 	this->addDirAction->setDisabled(true);
@@ -476,7 +475,7 @@ template<PackFileType Type>
 void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
 	static_assert(Type == PackFileType::FPX || Type == PackFileType::PAK || Type == PackFileType::PCK || Type == PackFileType::VPK || Type == PackFileType::WAD3 || Type == PackFileType::ZIP);
 
-	if (window->isModified() && window->promptUserToKeepModifications()) {
+	if (window->isWindowModified() && window->promptUserToKeepModifications()) {
 		return;
 	}
 
@@ -1381,15 +1380,8 @@ void Window::markModified(bool modified_) {
 		return;
 	}
 
-	this->modified = modified_;
-
-	if (this->modified) {
-		this->setWindowTitle(PROJECT_TITLE.data() + QString(" (*)"));
-	} else {
-		this->setWindowTitle(PROJECT_TITLE.data());
-	}
-
-	this->saveAction->setDisabled(!this->modified);
+	this->setWindowModified(modified_);
+	this->saveAction->setDisabled(!this->isWindowModified());
 }
 
 bool Window::promptUserToKeepModifications() {
@@ -1412,7 +1404,7 @@ bool Window::promptUserToKeepModifications() {
 }
 
 bool Window::clearContents() {
-	if (this->modified && this->promptUserToKeepModifications()) {
+	if (this->isWindowModified() && this->promptUserToKeepModifications()) {
 		return false;
 	}
 
@@ -1441,7 +1433,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions, bool freezeF
 	this->openDirAction->setDisabled(freeze && freezeCreationActions);
 	this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
 	this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
-	this->saveAction->setDisabled(freeze || !this->modified);
+	this->saveAction->setDisabled(freeze || !this->isWindowModified());
 	this->saveAsAction->setDisabled(freeze);
 	this->closeFileAction->setDisabled(freeze);
 	this->extractAllAction->setDisabled(freeze);
@@ -1464,10 +1456,6 @@ void Window::freezeModifyActions(bool readOnly) const {
 		this->addDirAction->setDisabled(readOnly);
 		this->setPropertiesAction->setDisabled(readOnly);
 	}
-}
-
-bool Window::isModified() const {
-	return this->modified;
 }
 
 void Window::mousePressEvent(QMouseEvent* event) {
@@ -1533,7 +1521,7 @@ void Window::dropEvent(QDropEvent* event) {
 }
 
 void Window::closeEvent(QCloseEvent* event) {
-	if (this->modified && this->promptUserToKeepModifications()) {
+	if (this->isWindowModified() && this->promptUserToKeepModifications()) {
 		event->ignore();
 		return;
 	}
@@ -1749,12 +1737,14 @@ void ScanSteamGamesWorker::run() {
 		if (!steam.isAppUsingSourceEngine(appID) && !steam.isAppUsingSource2Engine(appID)) {
 			continue;
 		}
-		auto iconPath = steam.getAppIconPath(appID);
-		sourceGames.emplace_back(steam.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), steam.getAppInstallDir(appID).c_str());
+		sourceGames.emplace_back(
+				steam.getAppName(appID).data(),
+				QIcon{QPixmap::fromImage(ImageLoader::load(steam.getAppIconPath(appID).c_str()))},
+				steam.getAppInstallDir(appID).c_str());
 	}
 
 	// Add mods in the sourcemods directory
-	for (const auto& modDir : std::filesystem::directory_iterator{steam.getSourceModDir()}) {
+	for (const auto& modDir : std::filesystem::directory_iterator{steam.getSourceModDir(), std::filesystem::directory_options::skip_permission_denied | std::filesystem::directory_options::follow_directory_symlink}) {
 		if (!modDir.is_directory()) {
 			continue;
 		}
@@ -1797,8 +1787,10 @@ void ScanSteamGamesWorker::run() {
 			}
 		}
 
-		std::optional<QImage> modIconTGA = modIconPath.empty() ? std::nullopt : TGADecoder::decodeImage(modIconPath.c_str());
-		sourceGames.emplace_back(modName.c_str(), modIconTGA ? QIcon(QPixmap::fromImage(*modIconTGA)) : QIcon(":/icons/missing_app.png"), modDir.path().string().c_str());
+		sourceGames.emplace_back(
+				modName.c_str(),
+				QIcon{QPixmap::fromImage(ImageLoader::load(modIconPath.c_str()))},
+				modDir.path().string().c_str());
 	}
 
 	// Replace & with && in game names

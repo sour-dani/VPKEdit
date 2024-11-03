@@ -111,6 +111,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".tres", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".import", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".remap", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".pop", &SingleFile::open);
 
 	// Textures
 	VPKPP_REGISTER_PACKFILE_OPEN(".tga", &SingleFile::open);
@@ -120,6 +121,13 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".png", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".webp", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".bmp", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".psd", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".gif", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".hdr", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".exr", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".pic", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".ppm", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".pgm", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".svg", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".ppl", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".vtf", &SingleFile::open);
