@@ -406,7 +406,7 @@ jobs:
             ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
-        - name: Release Standalone CLI [compiler:gcc][target:VPKEdit]
+      - name: Release Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         uses: softprops/action-gh-release@v2
         with:
