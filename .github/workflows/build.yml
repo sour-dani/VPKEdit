@@ -399,7 +399,6 @@ jobs:
           # ${{env.BUILD_DIR}}/vpkeditcli
         run: |
           echo "hello"
-
       - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
