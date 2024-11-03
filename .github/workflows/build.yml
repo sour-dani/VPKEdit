@@ -109,22 +109,11 @@ jobs:
         with:
           files: build/CREDITS.md
           dest: new.zip
-      
-      - name: whereami
-        run: dir
 
       - name: Test Multi Zip Action
         uses: vimtor/action-zip@v1.2
         with:
-          files: |
-            build/CREDITS.md
-            build/LICENSE
-            build/vpkedit.exe
-            build/*.dll
-            build/imageformats/*.dll
-            build/platforms/*.dll
-            build/styles/*.dll
-            build/tls/*.dll
+          files: build/CREDITS.md build/LICENSE build/vpkedit.exe build/*.dll build/imageformats/*.dll build/platforms/*.dll build/styles/*.dll build/tls/*.dll
           dest: result.zip
 
       - name: Archive Standalone GUI [target:VPKEdit]
@@ -141,6 +130,12 @@ jobs:
           ${{env.BUILD_DIR}}/styles/*.dll, `
           ${{env.BUILD_DIR}}/tls/*.dll `
           -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+      
+      - name: whereami
+        run: |
+          dir
+          cd build
+          dir 
           
       - name: Upload Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
