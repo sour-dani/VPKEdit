@@ -76,24 +76,34 @@ jobs:
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
       
-      # - name: Archive Standalone CLI [target:VPKEdit]
-      #   if: ${{matrix.target == 'VPKEdit'}}
-      #   shell: bash
-      #   run: |
-      #     cd ${{env.BUILD_DIR}}
-      #     zip -9 ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
-      #       CREDITS.md \
-      #       LICENSE \
-      #       vpkeditcli.exe
+      - name: Archive Standalone CLI [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        shell: bash
+        run: |
+          cd ${{env.BUILD_DIR}}
+          zip -9 ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
+            CREDITS.md \
+            LICENSE \
+            vpkeditcli.exe
 
-      # - name: Upload Standalone CLI [target:VPKEdit]
-      #   if: ${{matrix.target == 'VPKEdit'}}
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: '${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
-      #     path: |
-      #       ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
-      #     retention-days: 7
+      - name: Upload Standalone CLI [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
+          path: |
+            ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          retention-days: 7
+
+      - name: Upload Release Test
+        if: ${{matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+      
       - name: whereami
         run: |
           ls
@@ -122,6 +132,15 @@ jobs:
           path: |
             ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
+
+      - name: Upload Release Test
+        if: ${{matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
 
       # - name: Archive Standalone CLI/GUI [target:StrataSource]
       #   if: ${{matrix.target == 'StrataSource'}}
@@ -416,25 +435,25 @@ jobs:
   #           ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
   #         retention-days: 7
 
-  deploy:
-    needs:
-      - build-windows
-      # - build-linux
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          merge-multiple: true
-          pattern: '*Release'
-      - name: Upload Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: | 
-            artifacts/*.zip
-          tag_name: draft
-          draft: true
-          make_latest: true
+  # deploy:
+  #   needs:
+  #     - build-windows
+  #     # - build-linux
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Download Artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         path: artifacts
+  #         merge-multiple: true
+  #         pattern: '*Release'
+  #     - name: Upload Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         files: | 
+  #           artifacts/*.zip
+  #         tag_name: draft
+  #         draft: true
+  #         make_latest: true
