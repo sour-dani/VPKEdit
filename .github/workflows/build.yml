@@ -392,7 +392,7 @@ jobs:
       - name: Archive Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
+          zip -j9r ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
             ${{env.BUILD_DIR}}/CREDITS.md \
             ${{env.BUILD_DIR}}/LICENSE \
             ${{env.BUILD_DIR}}/vpkeditcli
@@ -420,7 +420,7 @@ jobs:
       - name: Archive Standalone GUI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
+          zip -j9r ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
           ${{env.BUILD_DIR}}/CREDITS.md \
           ${{env.BUILD_DIR}}/LICENSE \
           ${{env.BUILD_DIR}}/vpkedit \
@@ -459,7 +459,7 @@ jobs:
       - name: Archive Standalone CLI/GUI [compiler:gcc][target:StrataSource]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip \ 
+          zip -j9r ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip \ 
           ${{env.BUILD_DIR}}/vpkeditcli \
           ${{env.BUILD_DIR}}/vpkedit
         
@@ -492,7 +492,7 @@ jobs:
       - name: Archive Installer [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
+          zip -j9r ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
 
       - name: Upload Installer [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
