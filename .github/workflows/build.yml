@@ -160,26 +160,26 @@ jobs:
             result.zip
           retention-days: 7
 
-      - name: Upload Standalone GUI test [target:VPKEdit]
-        if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
-        with:
-          name: new
-          path: |
-            new.zip
-          retention-days: 7
+      # - name: Upload Standalone GUI test [target:VPKEdit]
+      #   if: ${{matrix.target == 'VPKEdit'}}
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: new
+      #     path: |
+      #       new.zip
+      #     retention-days: 7
 
 
-      - name: Upload Release Test
-        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
-        uses: softprops/action-gh-release@v2
-        with:
-          files: | 
-            ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
-            result.zip
-            new.zip
-          tag_name: draft-actions
-          draft: true
+      # - name: Upload Release Test
+      #   if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: | 
+      #       ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+      #       result.zip
+      #       new.zip
+      #     tag_name: draft-actions
+      #     draft: true
 
 
       # - name: Archive Standalone CLI/GUI [target:StrataSource]
