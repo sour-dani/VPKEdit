@@ -317,7 +317,7 @@ jobs:
         build_type: [Debug, Release]
         compiler: [gcc]
         target: [VPKEdit, StrataSource]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -377,7 +377,6 @@ jobs:
       - name: Fixup Binaries
         run: |
           chmod +x '${{env.BUILD_DIR}}/vpkedit'
-          chmod +x '${{env.BUILD_DIR}}/vpkeditcli'
 
           # runpath cleanup for the Qt binaries. These are (mostly) wrong, leading to crashes
           for f in ${{env.BUILD_DIR}}/*.so*; do
@@ -388,7 +387,15 @@ jobs:
             echo "Fixing $f..."
             chrpath -r '$ORIGIN/..' "$f"
           done
-
+      
+      - name: Archive Standalone CLI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        run: |
+          zip -j9 ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
+            ${{env.BUILD_DIR}}/CREDITS.md \
+            ${{env.BUILD_DIR}}/LICENSE \
+            ${{env.BUILD_DIR}}/vpkeditcli
+        
       - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
