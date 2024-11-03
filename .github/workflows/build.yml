@@ -128,7 +128,6 @@ jobs:
           ${{env.BUILD_DIR}}/tls/*.dll `
           -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           
-
       - name: Upload Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
@@ -145,6 +144,14 @@ jobs:
         with:
           files: | 
             ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+
+      - name: Upload Release Test
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
             result.zip
           tag_name: draft
           draft: true
