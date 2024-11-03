@@ -108,8 +108,11 @@ jobs:
         uses: vimtor/action-zip@v1.2
         with:
           files: build/CREDITS.md
-          dest: result.zip
+          dest: new.zip
       
+      - name: whereami
+        run: dir
+
       - name: Test Multi Zip Action
         uses: vimtor/action-zip@v1.2
         with:
@@ -123,9 +126,6 @@ jobs:
             build/styles/*.dll
             build/tls/*.dll
           dest: result.zip
-
-      - name: whereami
-        run: dir
 
       - name: Archive Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
