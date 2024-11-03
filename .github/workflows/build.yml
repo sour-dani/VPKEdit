@@ -374,6 +374,20 @@ jobs:
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
 
+      - name: Fixup Binaries
+        run: |
+          chmod +x '${{env.BUILD_DIR}}/vpkedit'
+          chmod +x '${{env.BUILD_DIR}}/vpkeditcli'
+
+          # runpath cleanup for the Qt binaries. These are (mostly) wrong, leading to crashes
+          for f in ${{env.BUILD_DIR}}/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN' "$f"
+          done
+          for f in ${{env.BUILD_DIR}}/*/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN/..' "$f"
+          done
       
       - name: Archive Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
@@ -383,14 +397,7 @@ jobs:
             ${{env.BUILD_DIR}}/LICENSE \
             ${{env.BUILD_DIR}}/vpkeditcli
         
-      - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
-        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
-        with:
-          name: '${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
-          path: |
-            ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
-          retention-days: 7
+      
 
         - name: Release Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
