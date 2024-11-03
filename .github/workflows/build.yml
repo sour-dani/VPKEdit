@@ -78,13 +78,13 @@ jobs:
       
       - name: Archive Standalone CLI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        shell: bash
+        shell: pwsh
         run: |
-          cd ${{env.BUILD_DIR}}
-          zip -9 ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
-            CREDITS.md \
-            LICENSE \
-            vpkeditcli.exe
+          Compress-Archive -Path `
+          ${{env.BUILD_DIR}}/CREDITS.md, `
+          ${{env.BUILD_DIR}}/LICENSE, `
+          ${{env.BUILD_DIR}}/vpkeditcli.exe `
+          -DestinationPath ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone CLI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -104,23 +104,19 @@ jobs:
           tag_name: draft
           draft: true
       
-      - name: whereami
-        run: |
-          ls
-          pwd
       - name: Archive Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        uses: vimtor/action-zip@v1.2
-        with:
-          files: |
-            ${{env.BUILD_DIR}}/CREDITS.md
-            ${{env.BUILD_DIR}}/LICENSE
-            ${{env.BUILD_DIR}}/vpkedit.exe
-            ${{env.BUILD_DIR}}/*.dll
-            ${{env.BUILD_DIR}}/imageformats/*.dll
-            ${{env.BUILD_DIR}}/platforms/*.dll
-            ${{env.BUILD_DIR}}/styles/*.dll
-            ${{env.BUILD_DIR}}/tls/*.dll
+        shell: pwsh
+          run: |
+            Compress-Archive -Path `
+            ${{env.BUILD_DIR}}/CREDITS.md, `
+            ${{env.BUILD_DIR}}/LICENSE, `
+            ${{env.BUILD_DIR}}/vpkedit.exe, `
+            ${{env.BUILD_DIR}}/*.dll, `
+            ${{env.BUILD_DIR}}/imageformats/*.dll, `
+            ${{env.BUILD_DIR}}/platforms/*.dll, `
+            ${{env.BUILD_DIR}}/styles/*.dll, `
+            ${{env.BUILD_DIR}}/tls/*.dll, `
           dest: ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
             
 
