@@ -143,6 +143,15 @@ jobs:
 
       
       # Standalone CLI/GUI
+      - name: Archive Standalone CLI/GUI [target:StrataSource]
+        if: ${{matrix.target == 'VPKEdit'}}
+        shell: pwsh
+        run: |
+          Compress-Archive -Path `
+          ${{env.BUILD_DIR}}/vpkeditcli.exe, `
+          ${{env.BUILD_DIR}}/vpkedit.exe `
+          -DestinationPath ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
+
       - name: Upload Standalone CLI/GUI [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
         uses: actions/upload-artifact@v4
@@ -152,6 +161,16 @@ jobs:
             ${{env.BUILD_DIR}}/vpkeditcli.exe
             ${{env.BUILD_DIR}}/vpkedit.exe
           retention-days: 7
+
+      - name: Release Standalone CLI/GUI [target:StrataSource]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'StrataSource'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
 
       # Installer
       - name: Create Installer [target:VPKEdit]
@@ -370,10 +389,14 @@ jobs:
             chrpath -r '$ORIGIN/..' "$f"
           done
       
+      # Standalone CLI
       - name: Archive Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
+          zip -j9 ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
+          ${{env.BUILD_DIR}}/CREDITS.md \
+          ${{env.BUILD_DIR}}/LICENSE \
+          ${{env.BUILD_DIR}}/vpkeditcli
 
       - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
@@ -384,10 +407,35 @@ jobs:
             ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
+        - name: Release Standalone CLI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
+
+      # Standalone GUI
       - name: Archive Standalone GUI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
+          zip -j9 ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip \
+          ${{env.BUILD_DIR}}/CREDITS.md \
+          ${{env.BUILD_DIR}}/LICENSE \
+          ${{env.BUILD_DIR}}/vpkedit \
+          ${{env.BUILD_DIR}}/*.so* \
+          ${{env.BUILD_DIR}}/egldeviceintegrations/*.so* \
+          ${{env.BUILD_DIR}}/imageformats/*.so* \
+          ${{env.BUILD_DIR}}/platforminputcontexts/*.so* \
+          ${{env.BUILD_DIR}}/platforms/*.so* \
+          ${{env.BUILD_DIR}}/platformthemes/*.so* \
+          ${{env.BUILD_DIR}}/tls/*.so* \
+          ${{env.BUILD_DIR}}/wayland-decoration-client/*.so* \
+          ${{env.BUILD_DIR}}/wayland-graphics-integration-client/*.so* \
+          ${{env.BUILD_DIR}}/wayland-shell-integration/*.so* \
+          ${{env.BUILD_DIR}}/xcbglintegrations/*.so*
           
       - name: Upload Standalone GUI [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
@@ -398,6 +446,17 @@ jobs:
             ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
+      - name: Release Standalone GUI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
+
+      # Standalone CLI/GUI
       - name: Archive Standalone CLI/GUI [compiler:gcc][target:StrataSource]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
         run: |
@@ -412,16 +471,27 @@ jobs:
             ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
+      - name: Release Standalone CLI/GUI [compiler:gcc][target:StrataSource]
+        if: ${{matrix.compiler == 'gcc' && matrix.build_type == 'Release' && matrix.target == 'StrataSource'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
+
+      # Installer
       - name: Create Installer [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
         run: |
           cpack
-
+      
       - name: Archive Installer [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         run: |
-          zip -j9 ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/*
+          zip -j9 ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
 
       - name: Upload Installer [compiler:gcc][target:VPKEdit]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
@@ -429,28 +499,15 @@ jobs:
         with:
           name: '${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
+            ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
           retention-days: 7
 
-  deploy:
-    needs:
-      - build-windows
-      - build-linux
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          merge-multiple: true
-          pattern: '*Release'
-      - name: Upload Release
+      - name: Release Installer [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         uses: softprops/action-gh-release@v2
         with:
           files: | 
-            artifacts/*.zip
+            ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          make_latest: true
+          github-token: ${{ secrets.GH_PAT }}
