@@ -116,7 +116,7 @@ jobs:
           ${{env.BUILD_DIR}}/imageformats/*.dll, `
           ${{env.BUILD_DIR}}/platforms/*.dll, `
           ${{env.BUILD_DIR}}/styles/*.dll, `
-          ${{env.BUILD_DIR}}/tls/*.dll, `
+          ${{env.BUILD_DIR}}/tls/*.dll `
           -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           
 
