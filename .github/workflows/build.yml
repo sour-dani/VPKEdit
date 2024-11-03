@@ -96,7 +96,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Release Test
-        if: ${{matrix.target == 'VPKEdit'}}
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         uses: softprops/action-gh-release@v2
         with:
           files: | 
@@ -130,7 +130,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Release Test
-        if: ${{matrix.target == 'VPKEdit'}}
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         uses: softprops/action-gh-release@v2
         with:
           files: | 
