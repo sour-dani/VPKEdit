@@ -104,7 +104,7 @@ jobs:
             ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Standalone GUI
       - name: Archive Standalone GUI [target:VPKEdit]
@@ -139,7 +139,7 @@ jobs:
             ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       
       # Standalone CLI/GUI
@@ -170,7 +170,7 @@ jobs:
             ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Installer
       - name: Create Installer [target:VPKEdit]
@@ -201,7 +201,7 @@ jobs:
             ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Compatibility GUI
       - name: Create Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
@@ -267,7 +267,7 @@ jobs:
             ${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Compatibility Installer
       - name: Create Compatibility Installer [build_type:Release][target:VPKEdit]
@@ -298,7 +298,7 @@ jobs:
             ${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Standalone PDBs
       - name: Upload Standalone PDBs [target:VPKEdit]
@@ -414,7 +414,7 @@ jobs:
             ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Standalone GUI
       - name: Archive Standalone GUI [compiler:gcc][target:VPKEdit]
@@ -453,7 +453,7 @@ jobs:
             ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Standalone CLI/GUI
       - name: Archive Standalone CLI/GUI [compiler:gcc][target:StrataSource]
@@ -480,7 +480,7 @@ jobs:
             ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
 
       # Installer
       - name: Create Installer [compiler:gcc][target:VPKEdit]
@@ -511,4 +511,4 @@ jobs:
             ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
           tag_name: draft
           draft: true
-          github-token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
