@@ -75,12 +75,17 @@ jobs:
         run: |
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
-      
+
+      # Standalone CLI 
       - name: Archive Standalone CLI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         shell: pwsh
         run: |
-          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          Compress-Archive -Path `
+          ${{env.BUILD_DIR}}/CREDITS.md, `
+          ${{env.BUILD_DIR}}/LICENSE, `
+          ${{env.BUILD_DIR}}/vpkeditcli.exe `
+          -DestinationPath ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone CLI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -91,11 +96,31 @@ jobs:
             ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
+      - name: Release Standalone CLI [target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
+
+      # Standalone GUI
       - name: Archive Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         shell: pwsh
         run: |
-          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          Compress-Archive -Path `
+          ${{env.BUILD_DIR}}/CREDITS.md, `
+          ${{env.BUILD_DIR}}/LICENSE, `
+          ${{env.BUILD_DIR}}/vpkedit.exe, `
+          ${{env.BUILD_DIR}}/*.dll, `
+          ${{env.BUILD_DIR}}/imageformats/*.dll, `
+          ${{env.BUILD_DIR}}/platforms/*.dll, `
+          ${{env.BUILD_DIR}}/styles/*.dll, `
+          ${{env.BUILD_DIR}}/tls/*.dll `
+          -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone GUI [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -106,21 +131,29 @@ jobs:
             ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
 
-      - name: Archive Standalone CLI/GUI [target:StrataSource]
-        if: ${{matrix.target == 'StrataSource'}}
-        shell: pwsh
-        run: |
-          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
+      - name: Release Standalone GUI [target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
 
+      
+      # Standalone CLI/GUI
       - name: Upload Standalone CLI/GUI [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
         uses: actions/upload-artifact@v4
         with:
           name: '${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip
+            ${{env.BUILD_DIR}}/vpkeditcli.exe
+            ${{env.BUILD_DIR}}/vpkedit.exe
           retention-days: 7
 
+      # Installer
       - name: Create Installer [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
@@ -130,7 +163,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         shell: pwsh
         run: |
-          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          Compress-Archive -Path ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe -DestinationPath ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Installer [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -138,9 +171,20 @@ jobs:
         with:
           name: '${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
+            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
+          
+      - name: Release Installer [target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
 
+      # Compatibility GUI
       - name: Create Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
@@ -176,7 +220,16 @@ jobs:
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         shell: pwsh
         run: |
-          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          Compress-Archive -Path `
+          ${{env.BUILD_DIR}}/CREDITS.md, `
+          ${{env.BUILD_DIR}}/LICENSE, `
+          ${{env.BUILD_DIR}}/vpkedit.exe, `
+          ${{env.BUILD_DIR}}/*.dll, `
+          ${{env.BUILD_DIR}}/imageformats/*.dll, `
+          ${{env.BUILD_DIR}}/platforms/*.dll, `
+          ${{env.BUILD_DIR}}/styles/*.dll, `
+          ${{env.BUILD_DIR}}/tls/*.dll `
+          -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
@@ -186,7 +239,18 @@ jobs:
           path: |
             ${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
           retention-days: 7
+      
+      - name: Release Compatibility GUI [build_type:Release
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
 
+      # Compatibility Installer
       - name: Create Compatibility Installer [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
@@ -196,7 +260,7 @@ jobs:
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         shell: pwsh
         run: |
-          Compress-Archive -Path ${{env.BUILD_DIR}}/* -DestinationPath ${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          Compress-Archive -Path ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe -DestinationPath ${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
 
       - name: Upload Compatibility Installer [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
@@ -204,9 +268,20 @@ jobs:
         with:
           name: '${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
+            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
 
+      - name: Release Compatibility Installer [build_type:Release]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: | 
+            ${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          tag_name: draft
+          draft: true
+          github-token: ${{ secrets.GH_PAT }}
+
+      # Standalone PDBs
       - name: Upload Standalone PDBs [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
