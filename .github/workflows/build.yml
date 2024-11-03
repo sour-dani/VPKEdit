@@ -160,7 +160,7 @@ jobs:
             result.zip
           retention-days: 7
 
-        - name: Upload Standalone GUI test [target:VPKEdit]
+      - name: Upload Standalone GUI test [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
