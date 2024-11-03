@@ -141,7 +141,6 @@ jobs:
           draft: true
           token: ${{ secrets.GH_PAT }}
 
-      
       # Standalone CLI/GUI
       - name: Archive Standalone CLI/GUI [target:StrataSource]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -460,8 +459,8 @@ jobs:
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
         run: |
           zip -j9r ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}.zip \ 
-          ${{env.BUILD_DIR}}/vpkeditcli \
-          ${{env.BUILD_DIR}}/vpkedit
+            build/vpkeditcli \
+            build/vpkedit
         
       - name: Upload Standalone CLI/GUI [compiler:gcc][target:StrataSource]
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
