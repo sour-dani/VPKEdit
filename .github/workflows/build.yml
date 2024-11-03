@@ -374,8 +374,6 @@ jobs:
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
 
-      - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
-   
 
       # Standalone GUI
       - name: Archive Standalone GUI [compiler:gcc][target:VPKEdit]
