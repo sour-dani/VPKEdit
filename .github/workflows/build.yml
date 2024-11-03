@@ -119,8 +119,8 @@ jobs:
           files: |
             build/CREDITS.md
             build/LICENSE
-            build/vpkedit.exe `
-            build//*.dll
+            build/vpkedit.exe
+            build/*.dll
             build/imageformats/*.dll
             build/platforms/*.dll
             build/styles/*.dll
