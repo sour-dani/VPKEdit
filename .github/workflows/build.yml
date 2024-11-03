@@ -177,7 +177,8 @@ jobs:
           files: | 
             ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
             result.zip
-          tag_name: draft
+            new.zip
+          tag_name: draft-actions
           draft: true
 
 
