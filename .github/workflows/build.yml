@@ -117,7 +117,7 @@ jobs:
           ${{env.BUILD_DIR}}/platforms/*.dll, `
           ${{env.BUILD_DIR}}/styles/*.dll, `
           ${{env.BUILD_DIR}}/tls/*.dll, `
-        dest: ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
+          -DestinationPath ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}.zip
           
 
       - name: Upload Standalone GUI [target:VPKEdit]
