@@ -1,0 +1,138 @@
+name: Linux
+on:
+  workflow_call:
+
+jobs:
+  build-linux:
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+        compiler: [gcc]
+        target: [VPKEdit, StrataSource]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Necessary Packages
+        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build chrpath
+
+      - name: Install GCC [compiler:gcc]
+        if: ${{matrix.compiler == 'gcc'}}
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 11
+          platform: x64
+
+      - name: Install Qt [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: '${{env.QT_VERSION_VPKEDIT}}'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          dir: '${{github.workspace}}/qt'
+          modules: ${{env.QT_MODULES}}
+          cache: true
+
+      - name: Install Qt [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: '${{env.QT_VERSION_STRATASOURCE}}'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          dir: '${{github.workspace}}/qt'
+          modules: ${{env.QT_MODULES}}
+          cache: true
+
+      - name: Configure CMake [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64" -DVPKEDIT_USE_LTO=ON
+
+      - name: Configure CMake [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
+
+      - name: Fixup Binaries
+        run: |
+          chmod +x '${{env.BUILD_DIR}}/vpkedit'
+
+          # runpath cleanup for the Qt binaries. These are (mostly) wrong, leading to crashes
+          for f in ${{env.BUILD_DIR}}/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN' "$f"
+          done
+          for f in ${{env.BUILD_DIR}}/*/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN/..' "$f"
+          done
+
+      - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/CREDITS.md
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/vpkeditcli
+          retention-days: 7
+
+      - name: Upload Standalone GUI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/CREDITS.md
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/vpkedit
+            ${{env.BUILD_DIR}}/*.so*
+            ${{env.BUILD_DIR}}/egldeviceintegrations/*.so*
+            ${{env.BUILD_DIR}}/imageformats/*.so*
+            ${{env.BUILD_DIR}}/platforminputcontexts/*.so*
+            ${{env.BUILD_DIR}}/platforms/*.so*
+            ${{env.BUILD_DIR}}/platformthemes/*.so*
+            ${{env.BUILD_DIR}}/tls/*.so*
+            ${{env.BUILD_DIR}}/wayland-decoration-client/*.so*
+            ${{env.BUILD_DIR}}/wayland-graphics-integration-client/*.so*
+            ${{env.BUILD_DIR}}/wayland-shell-integration/*.so*
+            ${{env.BUILD_DIR}}/xcbglintegrations/*.so*
+          retention-days: 7
+
+      - name: Upload Standalone CLI/GUI [compiler:gcc][target:StrataSource]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli
+            ${{env.BUILD_DIR}}/vpkedit
+          retention-days: 7
+
+      - name: Create Installer [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Installer [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
+          retention-days: 7
