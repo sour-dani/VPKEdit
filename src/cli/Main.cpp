@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 #include <argparse/argparse.hpp>
 #include <bsppp/PakLump.h>
@@ -450,6 +451,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	std::cout << "Successfully created pack file at \"" << packFile->getFilepath() << "\"." << std::endl;
 }
 
+/// Packs a list of files from a response file into a new pack file.
 void response_pack(const argparse::ArgumentParser& cli, const std::string& packName) {
     auto type = cli.get<std::string>(ARG_S(TYPE));
     std::string extension = '.' + type;
@@ -482,7 +484,6 @@ void response_pack(const argparse::ArgumentParser& cli, const std::string& packN
     auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
     auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
     auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_S(PRELOAD));
-    auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
     auto fileTree = cli.get<bool>(ARG_L(FILE_TREE));
     auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
     auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
@@ -536,9 +537,9 @@ void response_pack(const argparse::ArgumentParser& cli, const std::string& packN
         }
     }
 
-    std::ifstream ifs(responseFile);
+    std::ifstream responseFS(responseFile);
     std::string responseFileEntry;
-    while(std::getline(ifs, responseFileEntry))
+    while(std::getline(responseFS, responseFileEntry))
     {
         if (!std::filesystem::exists(responseFileEntry)) {
             throw vpkedit_invalid_argument_error{"File at \"" + responseFileEntry + "\" does not exist! Cannot add to pack file."};
@@ -549,7 +550,7 @@ void response_pack(const argparse::ArgumentParser& cli, const std::string& packN
         packFile->addEntry(responseFileEntry, responseFileEntry, {});
         std::cout << "Added file at \"" << responseFileEntry << "\" to the pack file at path \"" << responseFileEntry << "\"." << std::endl;
     }
-
+    responseFS.close();
     packFile->bake("", {
                .zip_compressionTypeOverride = compressionMethod,
                .zip_compressionStrength = compressionLevel,
@@ -592,9 +593,10 @@ int main(int argc, const char* const* argv) {
 	cli.set_assign_chars("=:");
 #endif
 
-	cli.add_description("This program currently has seven modes:\n"
-	                    " - Pack:     Packs the contents of a given directory into a new pack file.\n"
-	                    " - Extract:  Extracts files from the given pack file.\n"
+    cli.add_description("This program currently has eight modes:\n"
+                        " - Pack:     Packs the contents of a given directory into a new pack file.\n"
+                        " - Response:   Packs a list of files from a response file into a new pack file.\n"
+                        " - Extract:  Extracts files from the given pack file.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
 	                    " - Modify:   Edits the contents of the given pack file.\n"
 	                    " - Preview:  Prints the file tree of the given pack file to the console. Can also be combined\n"
@@ -608,6 +610,7 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument("path")
 		.help("(Pack)     The directory to pack the contents of into a new pack file.\n"
+              "(Response)     The path to the response file which contains a list of files to be added to the pack file."
 		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
 		      "(Modify)   The path to the pack file to edit the contents of.\n"
@@ -726,7 +729,7 @@ int main(int argc, const char* const* argv) {
 		.help("Use the specified hex sequence to decrypt a pack file. Ignored if unnecessary.");
 		
     cli.add_argument(ARG_P(RESPONSE_FILE))
-        .help("(Pack) The path to the response file which contains a list of files to be added to the VPK.")
+        .help("(Response) The path to the response file which contains a list of files to be added to the pack file.")
         .nargs(1);
 
 	cli.add_epilog(R"(Program details:                                               )"        "\n"
