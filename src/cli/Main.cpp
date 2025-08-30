@@ -48,6 +48,7 @@ ARG_S(SIGN,               "-k", "--sign");
 ARG_L(VERIFY_CHECKSUMS,         "--verify-checksums");
 ARG_L(VERIFY_SIGNATURE,         "--verify-signature");
 ARG_L(DECRYPTION_KEY,           "--decryption-key");
+ARG_S(RESPONSE_FILE,      "-r", "--response-file");
 
 #undef ARG_S
 #undef ARG_L
@@ -365,6 +366,9 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto fileTree = cli.get<bool>(ARG_L(FILE_TREE));
 	auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
 	auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
+    auto responseFile = cli.get<std::string>(ARG_S(RESPONSE_FILE));
+
+    std::cerr << responseFile << std::endl;
 
 	std::unique_ptr<indicators::IndeterminateProgressBar> bar;
 	if (!noProgressBar) {
@@ -597,6 +601,10 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument(ARG_L(DECRYPTION_KEY))
 		.help("Use the specified hex sequence to decrypt a pack file. Ignored if unnecessary.");
+		
+    cli.add_argument(ARG_P(RESPONSE_FILE))
+        .help("(Pack) The path to the response file which contains a list of files to be added to the VPK.")
+        .nargs(1);
 
 	cli.add_epilog(R"(Program details:                                               )"        "\n"
 	               R"(                    /$$                       /$$ /$$   /$$    )"        "\n"
