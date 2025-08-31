@@ -595,7 +595,7 @@ int main(int argc, const char* const* argv) {
 
     cli.add_description("This program currently has eight modes:\n"
                         " - Pack:     Packs the contents of a given directory into a new pack file.\n"
-                        " - Response:   Packs a list of files from a response file into a new pack file.\n"
+                        " - Response: Packs a list of files from a response file into a new pack file.\n"
                         " - Extract:  Extracts files from the given pack file.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
 	                    " - Modify:   Edits the contents of the given pack file.\n"
@@ -610,7 +610,7 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument("path")
 		.help("(Pack)     The directory to pack the contents of into a new pack file.\n"
-              "(Response)     The path to the response file which contains a list of files to be added to the pack file."
+              "(Response) The name of the file(s) to generate.\n"
 		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
 		      "(Modify)   The path to the pack file to edit the contents of.\n"
