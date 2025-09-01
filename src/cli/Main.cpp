@@ -452,7 +452,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 }
 
 /// Packs a list of files from a response file into a new pack file.
-void response_pack(const argparse::ArgumentParser& cli, const std::string& packName) {
+void responsePack(const argparse::ArgumentParser& cli, const std::string& packName) {
     auto type = cli.get<std::string>(ARG_S(TYPE));
     std::string extension = '.' + type;
     if (type == "vpk_vtmb") {
@@ -537,7 +537,7 @@ void response_pack(const argparse::ArgumentParser& cli, const std::string& packN
         }
     }
 
-    std::ifstream responseFS(responseFile);
+    std::fstream responseFS(responseFile);
     std::string responseFileEntry;
     while(std::getline(responseFS, responseFileEntry))
     {
@@ -786,7 +786,7 @@ int main(int argc, const char* const* argv) {
 				}
             }
         } else if (cli.is_used((ARG_S(RESPONSE_FILE)))){
-            ::response_pack(cli, inputPath);
+            ::responsePack(cli, inputPath);
 		} else if (cli.get<bool>(ARG_L(GEN_KEYPAIR))) {
 			::generateKeyPair(inputPath);
 		} else {
